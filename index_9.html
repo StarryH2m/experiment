@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>DS开发——9</title>
+</head>
+<body>
+<script src="http://bos3d.bimwinner.com/static/latest/BOS3D.min.js" charset="utf-8" type="application/javascript"></script>
+<link href="http://bos3d.bimwinner.com/static/UI/latest/BOS3DUI.min.css" rel="stylesheet">
+<script src="http://bos3d.bimwinner.com/static/UI/latest/BOS3DUI.min.js"></script>
+<script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts-gl/dist/echarts-gl.min.js"></script>
+
+<script src="index.js"></script> <!-- 引入js代码 -->
+<link rel="stylesheet" type="text/css" href="index.css"> <!-- 引入css样式 -->
+<div id="viewport" style="height: 100%; width: 100%"></div>
+<div class="but">
+    <button id="wendu">温度</button>
+    <button id="shidu">湿度</button>
+</div>
+
+<div id="chart"></div>
+<script type="text/javascript">
+    // getLogin();
+
+    // 系统报警上下限阈值设置
+    const max_temperature = 50;
+    const min_temperature = 5;
+    const max_humidity = 80;
+    const min_humidity = 10;
+
+    const modelKey = 'M1660527111361';
+    const modelDb = 'pb905a5984e3497ead3ca098b971481c';
+    modelViewer(modelKey, modelDb);
+
+    // 历史数据
+    var history_wendu = [];
+    var history_shidu = [];
+
+    // 历史数据可视化
+    function showEchart(y_data) {
+        let x_data = [];
+        for(let i = 0; i < y_data.length; i++) {
+            x_data.push(i);
+        }
+        var chart = document.getElementById('chart');
+        chart.style.display = "block";
+        var chart  = echarts.init(chart);
+        chart.setOption({
+            xAxis: {
+                type: 'category',
+                data: x_data,
+            },
+            // tooltip: {
+            //     trigger: 'axis'
+            // },
+            yAxis: {
+                type: 'value'
+            },
+            series: [
+                {
+                    itemStyle : { normal: {label : {show: true}}}, // 显示数值
+                    data: y_data,
+                    type: 'line'
+                }
+            ]
+        });
+    }
+
+    // 浏览器监听定位构件位置
+    viewer3D.viewerImpl.modelManager.addEventListener(BOS3D.EVENTS.ON_CLICK_PICK, event => {
+            if (event.intersectInfo) {
+                let p = event.intersectInfo.worldPosition;
+                console.log(p)
+            }
+        }
+    );
+
+    // 温度和湿度传感器位置确定
+    const pos_wendu = {x: 2779.432444054677, y: 14252.410380884137, z: -1900};
+    const pos_shidu = {x: 13243.261584336462, y: 11387.5, z: 488.9621272513614};
+
+    // 温度传感器
+    $(document).ready(function () {
+        $("#wendu").click(function () {
+            viewer3D.highlightComponentsByKey("M1660527111361_14rdgyntf8efwkUfBtQ9dj");
+            const threeMark = new BOS3D.ThreeMark(viewer3D);
+            const options = {
+                id: "1",
+                name: "温度标签",
+                scale: 25, color: "#FFD700", alwaysVisible: false,
+                position: [2779.432444054677, 14252.410380884137, -1900]
+            };
+            threeMark.add(options, function (a) {
+            });
+
+            var timer = window.setInterval(function () {
+                var data= {
+                    "id": "01",
+                    "temperature": `${(Math.random() * 50).toFixed(2)}`,
+                    "humidity": `${(Math.random() * 100).toFixed(2)}`
+                }
+
+
+                const options = {
+                    id: "1",
+                    name: "温度" + ":" + data['temperature'] + "℃",
+                    scale: 25, color: "#FFD700", alwaysVisible: false,
+                    position: [2779.432444054677, 14252.410380884137, -1900]
+                };
+                threeMark.updateMark("1", options);
+
+                // var panel1 = document.getElementById("wendu");
+                // panel1.innerHTML = "温度" + ":" + data['temperature'] + "℃";
+
+                history_wendu.push(data['temperature']);
+
+                if(data['temperature'] > max_temperature || data['temperature'] < min_temperature ) {
+                    viewer3D.closeHighlightComponentsByKey("M1660527111361_14rdgyntf8efwkUfBtQ9dj");
+                    viewer3D.colorfulComponentsByKey("M1660527111361_14rdgyntf8efwkUfBtQ9dj", "#ff0000");
+                    clearInterval(timer);
+
+                    // 可视化
+                    showEchart(history_wendu);
+                }
+
+            }, 3000);
+
+        }); // click
+
+    }) // 温度传感器
+
+    // 湿度传感器
+    $(document).ready(function () {
+        $("#shidu").click(function () {
+            viewer3D.highlightComponentsByKey("M1660527111361_14mMw2ErrC_9jjmQE1QFoB");
+
+            const threeMark = new BOS3D.ThreeMark(viewer3D);
+            const options = {
+                id: "1",
+                name: "湿度标签",
+                scale: 25, color: "#FFD700", alwaysVisible: false,
+                position: [13243.261584336462, 11387.5, 488.9621272513614]
+            };
+            threeMark.add(options, function (a) {
+            });
+
+            var timer = window.setInterval(function () {
+                var data= {
+                    "id": "01",
+                    "temperature": `${(Math.random() * 50).toFixed(2)}`,
+                    "humidity": `${(Math.random() * 100).toFixed(2)}`
+                }
+
+                const options = {
+                    id: "1",
+                    name: "湿度" + ":" + data['humidity'] + "RH%",
+                    scale: 25, color: "#FFD700", alwaysVisible: false,
+                    position:  [13243.261584336462, 11387.5, 488.9621272513614]
+                };
+                threeMark.updateMark("1", options);
+
+                // var panel2 = document.getElementById("shidu");
+                // panel2.innerHTML = "湿度" + ":" + data['humidity'] + "RH%";
+
+                history_shidu.push(data['humidity']);
+
+                if(data['humidity'] > max_humidity || data['humidity'] < min_humidity) {
+                    viewer3D.closeHighlightComponentsByKey("M1660527111361_14mMw2ErrC_9jjmQE1QFoB");
+                    viewer3D.colorfulComponentsByKey("M1660527111361_14mMw2ErrC_9jjmQE1QFoB", "#ff0000");
+                    clearInterval(timer);
+
+                    // 可视化
+                    showEchart(history_shidu);
+
+                }
+
+            }, 3000);
+
+        }); // click
+
+    }) // 湿度传感器
+
+
+</script>
+</div>
+</body>
+</html>

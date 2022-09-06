@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>DS开发--7</title>
+</head>
+<body>
+
+<script src="http://bos3d.bimwinner.com/static/latest/BOS3D.min.js" charset="utf-8" type="application/javascript"></script>
+<link href="http://bos3d.bimwinner.com/static/UI/latest/BOS3DUI.min.css" rel="stylesheet">
+<script src="http://bos3d.bimwinner.com/static/UI/latest/BOS3DUI.min.js"></script>
+<script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="index.js"></script> <!-- 引入js代码 -->
+<link rel="stylesheet" type="text/css" href="index.css"> <!-- 引入css样式 -->
+<div id="viewport" style="height: 100%; width: 100%"></div>
+
+<div id="main-search">
+    楼层：<select id="floor" onChange="getComponentClass()"></select>
+    构件类：<select id="componentClass" onChange="getComponent()"></select>
+    构件名称：<input id="ipt" type="text" placeholder="构件名称"  />
+    <button onClick="keySearch()">搜索</button>
+</div>
+
+<script type="text/javascript">
+    getLogin(); // 用户登录
+    const modelCode = 'M_JfRgkeiZAQ5L'; // 教学楼对应的模型编码
+    getModelKeyByModelCode(modelCode); // 根据模型编码获取modelKey
+    // const token = localStorage.getItem('token');
+    // console.log("token", token);
+
+    const modelKey = 'M1660527111361';
+    const modelDb = 'pb905a5984e3497ead3ca098b971481c';
+    modelViewer(modelKey, modelDb); // 模型可视化
+
+    queryFileKeyByModelKey(modelKey, modelDb); // 获取模型空间树的fileKey
+
+    const fileKey = 'Z3JvdXAyLE0yRC8wMS8wNS9yQkFBSkdMNW9tYUFNUTRqQUFBdWw4aGZtemc2MjA0Lmd6';
+    const treeList = queryModelTreeByFileKey(fileKey); // 获取模型空间树
+    console.log("模型空间树",treeList);
+
+    // 楼层
+    var _floor = document.querySelector('#floor');
+    Object.keys(treeList).map((key,value) => {
+        _floor.innerHTML += `<option value=${value}>${key}</option>`
+    })
+
+    // 构件类
+    var _componentClass = document.querySelector('#componentClass');
+    let componentClass = '';
+    function getComponentClass() {
+        _componentClass.innerHTML = '';
+        var floor_check = _floor.value; // 定位选择的楼层
+        console.log(floor_check)
+        // 找到所选楼层下的所有数组
+        Object.keys(treeList).map(key => {
+            if((Object.keys(treeList).indexOf(key).toString()) === floor_check) {
+                componentClass = treeList[key];
+                return componentClass;
+            }
+        });
+
+        Object.keys(componentClass).map((key,value) => {
+            _componentClass.innerHTML += `<option value=${value}>${key}</option>`
+        })
+    }
+
+    // 构件
+    let component = '';
+    function getComponent() {
+        var componentClass_Check = _componentClass.value; // 定位所选的构件类
+        console.log(componentClass_Check)
+        // 找到所构件类下的所有数组
+        Object.keys(componentClass).map(key => {
+            if((Object.keys(componentClass).indexOf(key).toString()) === componentClass_Check) {
+                component= componentClass[key];
+                return component;
+            }
+        });
+    }
+
+    // 关键字搜索
+    function keySearch() {
+        let obj = component;
+        this.findComponent(obj);
+    }
+
+    function findComponent(obj) {
+        const input = document.getElementById('ipt').value;
+        var keys = [];
+        Object.keys(obj).map(key => {
+            if(obj[key].name) {
+                if(obj[key].name.match(input)) {
+                    // console.log("高亮这个构件", obj[key].key, obj[key].name);
+                    keys.push(obj[key].key);
+                }
+            }
+            else {
+                obj = obj[key];
+                this.findComponent(obj)
+            }
+        });
+        if(keys.length === 0) {
+            alert("当前条件下无对应构件，请重新选填查找条件");
+        }
+        else {
+            viewer3D.highlightComponentsByKey(keys);
+        }
+    }
+
+</script>
+</body>
+</html>

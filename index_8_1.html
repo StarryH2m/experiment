@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>DS开发--8.1</title>
+</head>
+<body>
+<script src="http://bos3d.bimwinner.com/static/latest/BOS3D.min.js" charset="utf-8" type="application/javascript"></script>
+<link href="http://bos3d.bimwinner.com/static/UI/latest/BOS3DUI.min.css" rel="stylesheet">
+<script src="http://bos3d.bimwinner.com/static/UI/latest/BOS3DUI.min.js"></script>
+
+<script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+<link href="https://cdn.bootcdn.net/ajax/libs/bootstrap-treeview/1.2.0/bootstrap-treeview.min.css" rel="stylesheet">
+<script src="https://cdn.bootcdn.net/ajax/libs/bootstrap-treeview/1.2.0/bootstrap-treeview.min.js"></script>
+
+<!--<script src="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.2.0/js/bootstrap.min.js"></script>-->
+<!--<link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.2.0/css/bootstrap.min.css" rel="stylesheet">-->
+
+<link href="http://apps.bdimg.com/libs/bootstrap/3.3.0/css/bootstrap.min.css" rel="stylesheet">
+<script src="http://apps.bdimg.com/libs/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+
+<script src="index.js"></script> <!-- 引入js代码 -->
+<link rel="stylesheet" type="text/css" href="index.css"> <!-- 引入css样式 -->
+<div id="viewport" style="height: 100%; width: 100%"></div>
+<div id="main-tree">
+
+</div>
+<script type="text/javascript">
+
+    /**
+     * 教学楼模型
+     * @type {string}
+     */
+    // const modelKey = 'M1660527111361';
+    // const modelDb = 'pb905a5984e3497ead3ca098b971481c';
+    // modelViewer(modelKey, modelDb);
+    //
+    // const fileKey = 'Z3JvdXAyLE0yRC8wMS8wNS9yQkFBSkdMNW9tYUFNUTRqQUFBdWw4aGZtemc2MjA0Lmd6';
+    // const treeList = queryModelTreeByFileKey(fileKey);
+    // console.log("treeList", treeList); // 得到JSON对象格式
+
+    /**
+     * 管道模型
+      * @type {string}
+     */
+    const modelKey = 'M1662011689775';
+    const modelDb = 'pb905a5984e3497ead3ca098b971481c';
+    modelViewer(modelKey, modelDb);
+
+    const fileKey2 = 'Z3JvdXAyLE0yRC8wMy8wNC9yQkFBSkdNUVNVR0FYX3FQQUFBU28tVWVPMHM0NTE5Lmd6'
+    const treeList2 = queryModelTreeByFileKey(fileKey2);
+    console.log("treeList2", treeList2); // 得到JSON对象格式
+
+
+
+    // 获取JSON对象父子节点
+    function getTree(tree) {
+        let result = [];
+        if(tree.constructor === Object) {
+            Object.keys(tree).map(key => {
+
+                result.push({
+                    text: key,
+                    nodes: getTree(tree[key])
+
+                })
+            });
+        }
+        // for (const [key, value] of Object.entries(tree)) {
+        //
+        //     if (typeof value === 'object' && value !== null) {
+        //         result.push({
+        //             text: key,
+        //             nodes: getTree(tree[key])
+        //         })
+        //     }
+        //
+        // }
+        return result;
+    }
+
+
+    let treeNode = getTree(treeList2);
+    console.log(treeNode);
+
+
+    // 浏览器效果展示
+    const initTree = (tree) => {
+        $('#main-tree').treeview({
+            data: tree,
+            collapseIcon: "glyphicon glyphicon-minus",
+            expandIcon: "glyphicon glyphicon-plus",
+            onNodeSelected: function (event, data) {
+                const highlightArray = locationNodes(data);
+                viewer3D.resetScene();
+                viewer3D.transparentOtherComponentsByKey(highlightArray);
+            },
+            onNodeUnselected: (event, data) => {
+                viewer3D.resetScene()
+            }
+        });
+    }
+
+    // 选择某一节点触发的函数
+    const locationNodes = (nodes) => {
+        let array = [];
+        if (nodes.nodes) {
+            for (let i = 0; i < nodes.nodes.length; i++) {
+                const list = locationNodes(nodes.nodes[i]);
+                array = list.reduce(function (coll, item) {
+                    coll.push(item);
+                    return coll;
+                }, array);
+            }
+        } else {
+            array.push(nodes.id);
+        }
+
+        return array;
+    }
+
+
+    initTree(treeNode)
+
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,74 @@
+select {
+    width: 150px;
+    margin-right: 5px;
+}
+
+#main-search {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+}
+
+
+#main-tree {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    width: 300px;
+    height: 400px;
+    overflow: auto;
+    background: #EEEEEE;
+}
+
+#main-relSearch {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    z-index: 1;
+    overflow: auto;
+}
+
+h3 {
+    font-weight: bold;
+}
+
+button {
+    border: none;
+    color: white;
+    text-align: center;
+    text-decoration: none;
+    font-size: 12px;
+    margin: 5px 8px;
+    cursor: pointer;
+    line-height:24px;
+    height:24px;
+    background:rgba(40,120,255,1);
+    outline-style: none;
+    border-radius:12px;
+}
+
+body {
+    margin: 0;
+    overflow: hidden;
+    position: fixed;
+}
+
+.but {
+    position: absolute;
+    top: 10px;
+    z-index: 1;
+    left: 10px;
+
+}
+
+#chart {
+    position: absolute;
+    top: 50px;
+    z-index: 1;
+    left: 10px;
+    flex-wrap: wrap;
+    width: 400px;
+    height: 250px;
+    background: #e9fafa;
+    display: none;
+}

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>DS开发--8.2</title>
+</head>
+<body>
+<script src="http://bos3d.bimwinner.com/static/latest/BOS3D.min.js" charset="utf-8" type="application/javascript"></script>
+<link href="http://bos3d.bimwinner.com/static/UI/latest/BOS3DUI.min.css" rel="stylesheet">
+<script src="http://bos3d.bimwinner.com/static/UI/latest/BOS3DUI.min.js"></script>
+<script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+<script src="index.js"></script> <!-- 引入js代码 -->
+<link rel="stylesheet" type="text/css" href="index.css"> <!-- 引入css样式 -->
+<div id="viewport" style="height: 100%; width: 100%"></div>
+<div id="main-relSearch">
+    <h3>点击搜索前先在构件类别中选择目标构件</h3>
+    构件类：<select id="componentClass"></select>
+
+    <button id="highLight" onclick="highRelatedComponent()">搜索</button>
+</div>
+<script type="text/javascript">
+
+    getLogin();
+    /**
+     * 教学楼模型
+     * @type {string}
+     */
+    // const modelKey = 'M1660527111361';
+    // const modelDb = 'pb905a5984e3497ead3ca098b971481c';
+    // modelViewer(modelKey, modelDb);
+    //
+    // const fileKey = 'Z3JvdXAyLE0yRC8wMS8wNS9yQkFBSkdMNW9tYUFNUTRqQUFBdWw4aGZtemc2MjA0Lmd6';
+    // const treeList = queryModelTreeByFileKey(fileKey);
+    // console.log("treeList", treeList); // 得到JSON对象格式
+
+    /**
+     * 管道模型
+     * @type {string}
+     */
+    const modelKey = 'M1662011689775';
+    const modelDb = 'pb905a5984e3497ead3ca098b971481c';
+    modelViewer(modelKey, modelDb);
+
+    queryFileKeyByModelKey(modelKey, modelDb); // 获取fileKey
+
+    const fileKey2 = 'Z3JvdXAyLE0yRC8wMy8wNC9yQkFBSkdNUVNVR0FYX3FQQUFBU28tVWVPMHM0NTE5Lmd6'
+    const treeList2 = queryModelTreeByFileKey(fileKey2);
+    console.log("treeList2", treeList2); // 得到JSON对象格式
+
+    var _componentClass = document.querySelector('#componentClass');
+
+    // 获取构件类
+    var componentClass = '';
+    Object.keys(treeList2).map(key => {
+        componentClass = treeList2[key];
+    })
+
+    // 添加下拉列表
+    Object.keys(componentClass).map((key,value) => {
+        _componentClass.innerHTML += `<option value=${value}>${key}</option>`
+    })
+
+    // 浏览器监听获取componentKey，根据componentKey获得绑定的itemkey，然后得到所有相关的构件
+    let allRelatedComponentKey = [];
+
+    viewer3D.registerModelEventListener(window.BOS3D.EVENTS.ON_CLICK_PICK, (event) => {
+        if (event.intersectInfo) {
+            let componentKey = event.intersectInfo.selectedObjectId;
+            console.log("监听得到鼠标选中的构件", componentKey)
+            let itemKey = queryItemByComponentKey(componentKey); // 根据构件key查找所绑定的唯一的物项key
+            let component = queryComponentByItemKey(itemKey); // 根据物项key查找所绑定的所有构件key
+            for(let i = 0; i < component.length; i++) {
+                allRelatedComponentKey.push(component[i].componentKey)
+            }
+        }
+
+    })
+
+    function highRelatedComponent() {
+        var componentClass_check = _componentClass.value; // 定位选择的构件类别
+
+        var select_componentClass = [];
+        Object.keys(componentClass).map(key => {
+            if((Object.keys(componentClass).indexOf(key).toString()) === componentClass_check) {
+                select_componentClass = componentClass[key]; // 选中的构件类
+          }
+        });
+
+        console.log("所有相关构件", allRelatedComponentKey);
+        let relatedComponent = [];
+        for(let i = 0; i < allRelatedComponentKey.length; i++) {
+            for(let j = 0; j < select_componentClass.length; j++) {
+                if(allRelatedComponentKey[i] === select_componentClass[j].key)  {
+                    relatedComponent.push(allRelatedComponentKey[i])
+                }
+            }
+
+        }
+        console.log("对应构件类别下的相关构件", relatedComponent);
+        if(relatedComponent.length === 0) {
+            viewer3D.resetScene();
+            alert("该构件类别下无选中构件的关联构件！");
+        }
+        else {
+            viewer3D.resetScene();
+            viewer3D.highlightComponentsByKey(relatedComponent);
+            viewer3D.transparentOtherComponentsByKey(relatedComponent);
+        }
+
+    }
+
+</script>
+
+</body>
+</html>
