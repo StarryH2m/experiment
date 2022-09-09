@@ -23,7 +23,8 @@
 <script src="index.js"></script> <!-- 引入js代码 -->
 <link rel="stylesheet" type="text/css" href="index.css"> <!-- 引入css样式 -->
 <div id="viewport" style="height: 100%; width: 100%"></div>
-<div id="main-tree">
+
+<div id="main-tree"> <!-- 空间树div -->
 
 </div>
 <script type="text/javascript">
@@ -50,36 +51,31 @@
 
     const fileKey2 = 'Z3JvdXAyLE0yRC8wMy8wNC9yQkFBSkdNUVNVR0FYX3FQQUFBU28tVWVPMHM0NTE5Lmd6'
     const treeList2 = queryModelTreeByFileKey(fileKey2);
-    console.log("treeList2", treeList2); // 得到JSON对象格式
+    console.log("treeList2", treeList2); // 返回JSON对象数据
 
 
-
-    // 获取JSON对象父子节点
+    // 获取JSON对象父子节点， 返回JSON数据重新组织
     function getTree(tree) {
         let result = [];
         if(tree.constructor === Object) {
             Object.keys(tree).map(key => {
-
                 result.push({
                     text: key,
                     nodes: getTree(tree[key])
-
                 })
+
             });
+        } else if(tree instanceof Array) { // tree.constructor === Array
+            tree.forEach(item => {
+                result.push({
+                    id: item.key,
+                    text: item.name
+                })
+            })
         }
-        // for (const [key, value] of Object.entries(tree)) {
-        //
-        //     if (typeof value === 'object' && value !== null) {
-        //         result.push({
-        //             text: key,
-        //             nodes: getTree(tree[key])
-        //         })
-        //     }
-        //
-        // }
+
         return result;
     }
-
 
     let treeNode = getTree(treeList2);
     console.log(treeNode);
@@ -101,8 +97,8 @@
             }
         });
     }
-
-    // 选择某一节点触发的函数
+    //
+    // 根据用户点击的名称，获取当前树节点下所有的构件id，并对这些构件进行反选透明操作
     const locationNodes = (nodes) => {
         let array = [];
         if (nodes.nodes) {
@@ -120,9 +116,7 @@
         return array;
     }
 
-
-    initTree(treeNode)
-
+    initTree(treeNode);
 
 </script>
 

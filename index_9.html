@@ -70,22 +70,25 @@
     }
 
     // 浏览器监听定位构件位置
-    viewer3D.viewerImpl.modelManager.addEventListener(BOS3D.EVENTS.ON_CLICK_PICK, event => {
-            if (event.intersectInfo) {
-                let p = event.intersectInfo.worldPosition;
-                console.log(p)
-            }
-        }
-    );
+    // viewer3D.viewerImpl.modelManager.addEventListener(BOS3D.EVENTS.ON_CLICK_PICK, event => {
+    //         if (event.intersectInfo) {
+    //             let p = event.intersectInfo.worldPosition;
+    //             console.log(p)
+    //         }
+    //     }
+    // );
 
     // 温度和湿度传感器位置确定
-    const pos_wendu = {x: 2779.432444054677, y: 14252.410380884137, z: -1900};
-    const pos_shidu = {x: 13243.261584336462, y: 11387.5, z: 488.9621272513614};
+    // const pos_wendu = {x: 2779.432444054677, y: 14252.410380884137, z: -1900};
+    // const pos_shidu = {x: 13243.261584336462, y: 11387.5, z: 488.9621272513614};
 
     // 温度传感器
     $(document).ready(function () {
         $("#wendu").click(function () {
+            // 高亮温度传感器构件
             viewer3D.highlightComponentsByKey("M1660527111361_14rdgyntf8efwkUfBtQ9dj");
+
+            // 添加温度标签
             const threeMark = new BOS3D.ThreeMark(viewer3D);
             const options = {
                 id: "1",
@@ -96,6 +99,7 @@
             threeMark.add(options, function (a) {
             });
 
+            // 实时温度获取
             var timer = window.setInterval(function () {
                 var data= {
                     "id": "01",
@@ -117,12 +121,13 @@
 
                 history_wendu.push(data['temperature']);
 
+                // 报警阈值设定
                 if(data['temperature'] > max_temperature || data['temperature'] < min_temperature ) {
                     viewer3D.closeHighlightComponentsByKey("M1660527111361_14rdgyntf8efwkUfBtQ9dj");
                     viewer3D.colorfulComponentsByKey("M1660527111361_14rdgyntf8efwkUfBtQ9dj", "#ff0000");
                     clearInterval(timer);
 
-                    // 可视化
+                    // 历史温度数据可视化
                     showEchart(history_wendu);
                 }
 

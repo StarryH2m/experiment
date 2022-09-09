@@ -21,7 +21,7 @@ getLogin = () => {
         .then(response => response.text())
         .then(result => {
             const res = JSON.parse(result);
-            console.log("用户登录请求", res);
+            console.log("用户登录成功", res);
 
             // 保存到会话
             sessionStorage.setItem('loginUser', JSON.stringify(res.data.user));
@@ -61,7 +61,7 @@ getModelKeyByModelCode = (modelCode) => {
 
     fetch(`http://building-bos.rickricks.com/bosfoundationservice/${BUILDING_ID}/prototype/query/uoModelDocument?noRelation=true`, requestOptions)
         .then(response => response.text())
-        .then(result => console.log(JSON.parse(result).data))
+        .then(result => console.log("得到模型modelKey", JSON.parse(result).data))
         .catch(error => console.log('error', error));
 }
 
@@ -80,7 +80,7 @@ queryFileKeyByModelKey = (modelKey, modelDb) =>{
 
     fetch(`http://building-bos.rickricks.com/bos3dengine/api/${modelDb}/trees/list?modelKey=${modelKey}`, requestOptions)
         .then(response => response.text())
-        .then(result => console.log(JSON.parse(result).data))
+        .then(result => console.log("得到模型空间树的fileKey", JSON.parse(result).data))
         .catch(error => console.log('error', error));
 }
 
@@ -249,7 +249,7 @@ queryComponentByItemKey = (itemKey) => {
     };
 
     $.ajax(settings).done(function (response) {
-        console.log("得到itemKey对应的component", response.data);
+        console.log("得到itemKey对应的构件", response.data);
         component = response.data;
 
     });

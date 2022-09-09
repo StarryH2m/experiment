@@ -12,6 +12,7 @@
 <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script src="index.js"></script> <!-- 引入js代码 -->
 <link rel="stylesheet" type="text/css" href="index.css"> <!-- 引入css样式 -->
+
 <div id="viewport" style="height: 100%; width: 100%"></div>
 
 <div id="main-search">
@@ -25,6 +26,7 @@
     getLogin(); // 用户登录
     const modelCode = 'M_JfRgkeiZAQ5L'; // 教学楼对应的模型编码
     getModelKeyByModelCode(modelCode); // 根据模型编码获取modelKey
+
     // const token = localStorage.getItem('token');
     // console.log("token", token);
 
@@ -32,11 +34,12 @@
     const modelDb = 'pb905a5984e3497ead3ca098b971481c';
     modelViewer(modelKey, modelDb); // 模型可视化
 
+    // //
     queryFileKeyByModelKey(modelKey, modelDb); // 获取模型空间树的fileKey
-
+    // //
     const fileKey = 'Z3JvdXAyLE0yRC8wMS8wNS9yQkFBSkdMNW9tYUFNUTRqQUFBdWw4aGZtemc2MjA0Lmd6';
     const treeList = queryModelTreeByFileKey(fileKey); // 获取模型空间树
-    console.log("模型空间树",treeList);
+    console.log("得到模型空间树",treeList);
 
     // 楼层
     var _floor = document.querySelector('#floor');
